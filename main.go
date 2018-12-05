@@ -23,7 +23,7 @@ import (
 	"github.com/anaskhan96/soup"
 )
 
-func create_v4_signature (map[string]string)  {
+func create_v4_signature (map[string]string) (string, map[string]string)  {
 	method := "GET"
 	service := "awis"
 	host := "awis.us-west-1.amazonaws.com"
