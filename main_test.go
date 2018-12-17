@@ -2,6 +2,36 @@ package main
 
 import "testing"
 
-func testFind(t *testing.T) {
+func TestCreateV4Signature(t *testing.T) {
+
+}
+
+func TestSign(t *testing.T) {
+
+}
+
+func TestGetSignatureKey(t *testing.T) {
+
+}
+
+func TestGetUrlInfo(t *testing.T) {
+
+}
+
+func TestGetTrafficHistory(t *testing.T) {
+}
+
+func TestGetSitesLinkingIn(t *testing.T) {
+}
+
+func TestGetCategoryBrowseInformation(t *testing.T) {
+
+}
+
+func TestReturnOutput(t *testing.T) {
+
+}
+
+func TestName(t *testing.T) {
 
 }
