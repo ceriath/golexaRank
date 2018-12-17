@@ -104,7 +104,7 @@ This does something
 param:
 returns:
  */
-func urlinfo (domain string, responseGroup string) (url string, headers map[string]string) {
+func urlinfo (domain string, responseGroup string) (string, map[string]string) {
 	params := make(map[string]string)
 	params["Action"] = "UrlInfo"
 	params["Url"] = domain
@@ -115,9 +115,10 @@ func urlinfo (domain string, responseGroup string) (url string, headers map[stri
 
 /**
 The following function is used to get the traffic history of the given domain
-# TODO: Make the myRange and start parameters over-ridable
-param:
-returns:
+# TODO: Make the myRange and start parameters override-able
+param: Domain name
+param: ResponseGroup
+returns: Returns map with URL, headers
  */
 func traffichistory (domain string, responseGroup string) (string, map[string]string) {
 	myRange := "31"
@@ -133,7 +134,7 @@ func traffichistory (domain string, responseGroup string) (string, map[string]st
 }
 
 /**
-This function provides us the informaiton on sites linking in for a specified domain
+This function provides us the information on sites linking in for a specified domain
 param: Domain name
 param: Response group
 returns:
@@ -170,8 +171,10 @@ func cat_browse (domain string, path string, responseGroup string, descriptions 
 This does something
 params: A URL and the headers obtained from the create_v4_signature function
 returns: A beautiful soup object where the characters are encoded in utf-8 and the object is formatted as 'XML'
+& returns the memory address of the following variable.
+* returns the value of the following variable
  */
-func return_output (url string, headers map[string]string)  {
+func return_output (url string, headers map[string]string) *http.Response  {
 	// Look up CheckRedirect policies and see if one should be added here
 	client := &http.Client {}
 	request, _ := http.NewRequest("GET", url, nil)
@@ -182,7 +185,7 @@ func return_output (url string, headers map[string]string)  {
 	if err != nil {
 		os.Exit(1)
 	}
-	// return response
+	return response
 }
 
 func main() {
