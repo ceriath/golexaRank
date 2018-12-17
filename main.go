@@ -13,15 +13,13 @@ package main
 
 import (
 	"crypto/sha256"
-	"fmt"
-	"crypto"
 	"crypto/hmac"
+	"github.com/anaskhan96/soup"
 	"hash"
 	"net/http"
 	"net/url"
 	"os"
 	"time"
-	"github.com/anaskhan96/soup"
 )
 
 /**
@@ -29,58 +27,59 @@ This does something
 param:
 returns:
  */
-func create_v4_signature (map[string]string) (string, map[string]string)  {
+func createV4Signature(map[string]string) (string, map[string]string)  {
 	method := "GET"
 	service := "awis"
 	host := "awis.us-west-1.amazonaws.com"
 	region := "us-west-1"
 	endpoint := "https://awis.amazonaws.com/api"
-	request_parameters := "awis"
+	requestParameters := "awis"
 
 	// We need to create a date for headers and the credential string
 	t := time.Now().UTC()
-	amzdate := t.Format("%Y%m%dT%H%M%SZ")
-	datestamp := t.Format("%Y%m%d")
+	amzDate := t.Format("%Y%m%dT%H%M%SZ")
+	dateStamp := t.Format("%Y%m%d")
 
 	// Now to create a canonical request
-	canonical_uri := "/api"
-	request_parameters := 0 // TODO
-	canonical_querystring := request_parameters
-	canonical_headers := "host:" + host + "\n" + "x-amz-date:" + amzdate + "\n"
-	signed_headers := "host;x-amz-date"
-	payload_hash := 0 // TODO
-	canonical_request := method + "\n" + canonical_uri + "\n" + canonical_querystring + "\n" + canonical_headers + "\n" + signed_headers + "\n" + payload_hash
+	canonicalUri := "/api"
+	canonicalQuerystring := requestParameters
+	canonicalHeaders := "host:" + host + "\n" + "x-amz-date:" + amzDate + "\n"
+	signedHeaders := "host;x-amz-date"
+	payloadHash := 0 // TODO
+	canonicalRequest := method + "\n" + canonicalUri + "\n" + canonicalQuerystring + "\n" + canonicalHeaders + "\n" + signedHeaders + "\n" + payloadHash
 
 	// Create string to sign
 	algorithm := "AWS4-HMAC-SHA256"
-	credential_scope := datestamp + "/" + region + "/" + service + "/" + "aws4_request"
-	string_to_sign := algorithm + "\n" +  amzdate + "\n" +  credential_scope + "\n" +  hashlib.sha256(canonical_request.encode('utf8')).hexdigest() // TODO
+	credentialScope := dateStamp + "/" + region + "/" + service + "/" + "aws4_request"
+	stringToSign := algorithm + "\n" + amzDate + "\n" + credentialScope + "\n" +  hashlib.sha256(canonicalRequest.encode('utf8')).hexdigest() // TODO
 
 	// Calculate signature
 	// TODO
-	access_id := "TODO"
-	secret_access_key := "TODO"
+	accessID := "TODO"
+	secretAccessKey := "TODO"
 	// TODO
-	signing_key := get_signature_key(secret_access_key, datestamp, region, service)
+	signingKey := getSignatureKey(secretAccessKey, dateStamp, region, service)
 
-	// Sign the string_to_sign using the signing_key TODO
-	signature := hmac.new(signing_key, (string_to_sign).encode('utf-8'), hashlib.sha256).hexdigest()
+	// Sign the stringToSign using the signingKey TODO
+	signature := hmac.new(signingKey, (stringToSign).encode('utf-8'), hashlib.sha256).hexdigest()
 
 	// Add signing information to the request
-	authorization_header := algorithm + " " + "Credential=" + access_id + "/" + credential_scope + ", " +  "SignedHeaders=" + signed_headers + ", " + "Signature=" + signature
+	authorizationHeader := algorithm + " " + "Credential=" + accessId + "/" + credentialScope + ", " +  "SignedHeaders=" + signedHeaders + ", " + "Signature=" + signature
 	headers := make(map[string]string)
-	headers["X-Amz-Date"] = amzdate
-	headers["Authorization"] = authorization_header
+	headers["X-Amz-Date"] = amzDate
+	headers["Authorization"] = authorizationHeader
 	headers["Content-Type"] = "application/xml"
 	headers["Accept"] = "application/xml"
 
 	// Create request url
-	request_url := endpoint + "?" + canonical_querystring
+	requestUrl := endpoint + "?" + canonicalQuerystring
 
-	return request_url, headers
+	return requestUrl, headers
 }
 
+
 /**
+TODO: https://stackoverflow.com/questions/21961615/why-doesnt-go-allow-nested-function-declarations-functions-inside-functions
 This does something
 param:
 returns:
@@ -90,62 +89,64 @@ func sign (key string, msg string) {
 	mac.Write([]byte(msg))
 }
 
+
 /**
 This does something
 param:
 returns:
  */
-func get_signature_key (key string, dateStamp string, regionName  string, serviceName  string)  {
+func getSignatureKey(key string, dateStamp string, regionName  string, serviceName  string)  {
 
 }
 
 /**
-This does something
-param:
-returns:
+This function provides us the URL information for a given domain
+param: Domain name of the site
+param: responseGroup for the GetUrlInfo function
+returns: The response with the URL information as a http.Response type
  */
-func urlinfo (domain string, responseGroup string) (string, map[string]string) {
+func GetUrlInfo(domainURL string, responseGroup string) *http.Response {
 	params := make(map[string]string)
 	params["Action"] = "UrlInfo"
-	params["Url"] = domain
+	params["Url"] = domainURL
 	params["ResponseGroup"] = responseGroup
-	URL, headers := create_v4_signature(params)
-	return URL, headers
+	URL, headers := createV4Signature(params)
+	return ReturnOutput(URL, headers)
 }
 
 /**
-The following function is used to get the traffic history of the given domain
+This function provides us the traffic history of the given domain
 # TODO: Make the myRange and start parameters override-able
-param: Domain name
-param: ResponseGroup
-returns: Returns map with URL, headers
+param: Domain name of the site
+param: ResponseGroup for getting the traffic history
+returns: The response with the traffic history data as a http.Response type
  */
-func traffichistory (domain string, responseGroup string) (string, map[string]string) {
+func GetTrafficHistory(domainURL string, responseGroup string) *http.Response {
 	myRange := "31"
 	start := "20070801"
 	params := make(map[string]string)
 	params["Action"] = "TrafficHistory"
-	params["Url"] = domain
+	params["Url"] = domainURL
 	params["ResponseGroup"] = responseGroup
 	params["Range"] = myRange
 	params["Start"] = start
-	URL, headers := create_v4_signature(params)
-	return URL, headers
+	URL, headers := createV4Signature(params)
+	return ReturnOutput(URL, headers)
 }
 
 /**
 This function provides us the information on sites linking in for a specified domain
-param: Domain name
+param: Domain name of the site
 param: Response group
-returns:
+returns: The response with the get sites linking data as a http.Response type
  */
-func siteslinkingin (domain string, responseGroup string) (string, map[string]string) {
+func GetSitesLinkingIn(domainURL string, responseGroup string) *http.Response {
 	params := make(map[string]string)
 	params["Action"] = "SitesLinkingIn"
-	params["Url"] = domain
+	params["Url"] = domainURL
 	params["ResponseGroup"] = responseGroup
-	URL, headers := create_v4_signature(params)
-	return URL, headers
+	URL, headers := createV4Signature(params)
+	return ReturnOutput(URL, headers)
 }
 
 /**
@@ -154,30 +155,29 @@ param: Domain name
 param: Path TODO: Wtf is this supposed to be?
 param: responseGroup
 param: descriptions
-returns: URL, headers generated from the create_v4_signature function
+returns: URL, headers generated from the createV4Signature function
  */
-func cat_browse (domain string, path string, responseGroup string, descriptions string) (string, map[string]string) {
+func GetCategoryBrowseInformation(domainURL string, path string, responseGroup string, descriptions string) *http.Response {
 	params := make(map[string]string)
 	params["Action"] = "CategoryListings"
 	params["ResponseGroup"] = "Listings"
 	// Add quote(path) to the below
 	params["Path"] = "Listings"
 	params["Descriptions"] = descriptions
-	URL, headers := create_v4_signature(params)
-	return URL, headers
+	URL, headers := createV4Signature(params)
+	return ReturnOutput(URL, headers)
 }
 
 /**
-This does something
-params: A URL and the headers obtained from the create_v4_signature function
-returns: A beautiful soup object where the characters are encoded in utf-8 and the object is formatted as 'XML'
-& returns the memory address of the following variable.
-* returns the value of the following variable
+This function takes in a domain name, headers for the request and returns an http.Response type
+param: Domain name string
+param: A map with headers
+returns: An HTTP response type object
  */
-func return_output (url string, headers map[string]string) *http.Response  {
+func ReturnOutput(domainURL string, headers map[string]string) *http.Response  {
 	// Look up CheckRedirect policies and see if one should be added here
 	client := &http.Client {}
-	request, _ := http.NewRequest("GET", url, nil)
+	request, _ := http.NewRequest("GET", domainURL, nil)
 	for index, element := range headers {
 		request.Header.Add(index, element)
 	}
@@ -188,16 +188,28 @@ func return_output (url string, headers map[string]string) *http.Response  {
 	return response
 }
 
+/**
+This function takes in the http Response type and parses into usable XML
+ */
+func httpResponseToXML() {
+
+}
+
 func main() {
 	urlInfoResponseGroups := "RelatedLinks,Categories,Rank,ContactInfo,RankByCountry,UsageStats,Speed,Language,OwnedDomains,LinksInCount,SiteData,AdultContent"
 	trafficInfoResponseGroups := "History"
 	sitesLinkingInResponseGroup := "SitesLinkingIn"
+	categoryBrowseInfoResponseGroup := "Categories,RelatedCategories,LanguageCategories,LetterBars"
 	exampleDomain := "www.github.com"
-	// Let's see if the urlInfo function works
-	urlinfo(exampleDomain, urlInfoResponseGroups)
+	// Let's see if the GetUrlInfo function works
+	GetUrlInfo(exampleDomain, urlInfoResponseGroups)
 	// Let's see if the trafficInfo function works
-	traffichistory(exampleDomain, trafficInfoResponseGroups)
+	GetTrafficHistory(exampleDomain, trafficInfoResponseGroups)
 	// Let's see if the sitesLinkingIn function works
-	siteslinkingin(exampleDomain, sitesLinkingInResponseGroup)
-	// Let's see if the cat_browse function works
+	GetSitesLinkingIn(exampleDomain, sitesLinkingInResponseGroup)
+	// Let's see if the GetCategoryBrowseInformation function works
+	// TODO: Change this below
+	path := "True"
+	description := "True"
+	GetCategoryBrowseInformation(exampleDomain, path, categoryBrowseInfoResponseGroup, description)
 }
