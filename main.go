@@ -19,10 +19,16 @@ import (
 	"hash"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 	"github.com/anaskhan96/soup"
 )
 
+/**
+This does something
+param:
+returns:
+ */
 func create_v4_signature (map[string]string) (string, map[string]string)  {
 	method := "GET"
 	service := "awis"
@@ -74,24 +80,121 @@ func create_v4_signature (map[string]string) (string, map[string]string)  {
 	return request_url, headers
 }
 
+/**
+This does something
+param:
+returns:
+ */
 func sign (key string, msg string) {
 	mac := hmac.New(sha256.New, []byte(key))
 	mac.Write([]byte(msg))
 }
 
+/**
+This does something
+param:
+returns:
+ */
 func get_signature_key (key string, dateStamp string, regionName  string, serviceName  string)  {
 
 }
 
-func urlinfo (domain string, response_group map[string]string) {
+/**
+This does something
+param:
+returns:
+ */
+func urlinfo (domain string, responseGroup string) (url string, headers map[string]string) {
 	params := make(map[string]string)
 	params["Action"] = "UrlInfo"
 	params["Url"] = domain
-	params["ResponseGroup"] = response_group
+	params["ResponseGroup"] = responseGroup
+	URL, headers := create_v4_signature(params)
+	return URL, headers
+}
+
+/**
+The following function is used to get the traffic history of the given domain
+# TODO: Make the myRange and start parameters over-ridable
+param:
+returns:
+ */
+func traffichistory (domain string, responseGroup string) (string, map[string]string) {
+	myRange := "31"
+	start := "20070801"
+	params := make(map[string]string)
+	params["Action"] = "TrafficHistory"
+	params["Url"] = domain
+	params["ResponseGroup"] = responseGroup
+	params["Range"] = myRange
+	params["Start"] = start
+	URL, headers := create_v4_signature(params)
+	return URL, headers
+}
+
+/**
+This function provides us the informaiton on sites linking in for a specified domain
+param: Domain name
+param: Response group
+returns:
+ */
+func siteslinkingin (domain string, responseGroup string) (string, map[string]string) {
+	params := make(map[string]string)
+	params["Action"] = "SitesLinkingIn"
+	params["Url"] = domain
+	params["ResponseGroup"] = responseGroup
+	URL, headers := create_v4_signature(params)
+	return URL, headers
+}
+
+/**
+This function provides the category browse information for a specified domain
+param: Domain name
+param: Path TODO: Wtf is this supposed to be?
+param: responseGroup
+param: descriptions
+returns: URL, headers generated from the create_v4_signature function
+ */
+func cat_browse (domain string, path string, responseGroup string, descriptions string) (string, map[string]string) {
+	params := make(map[string]string)
+	params["Action"] = "CategoryListings"
+	params["ResponseGroup"] = "Listings"
+	// Add quote(path) to the below
+	params["Path"] = "Listings"
+	params["Descriptions"] = descriptions
+	URL, headers := create_v4_signature(params)
+	return URL, headers
+}
+
+/**
+This does something
+params: A URL and the headers obtained from the create_v4_signature function
+returns: A beautiful soup object where the characters are encoded in utf-8 and the object is formatted as 'XML'
+ */
+func return_output (url string, headers map[string]string)  {
+	// Look up CheckRedirect policies and see if one should be added here
+	client := &http.Client {}
+	request, _ := http.NewRequest("GET", url, nil)
+	for index, element := range headers {
+		request.Header.Add(index, element)
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		os.Exit(1)
+	}
+	// return response
 }
 
 func main() {
-	fmt.Println("Hello world")
-	TRAFFICINFO_RESPONSE_GROUPS := "History"
-	SITESLINKINGIN_RESPONSE_GROUP := "SitesLinkingIn"
+	urlInfoResponseGroups := "RelatedLinks,Categories,Rank,ContactInfo,RankByCountry,UsageStats,Speed,Language,OwnedDomains,LinksInCount,SiteData,AdultContent"
+	trafficInfoResponseGroups := "History"
+	sitesLinkingInResponseGroup := "SitesLinkingIn"
+	exampleDomain := "www.github.com"
+	// Let's see if the urlInfo function works
+	urlinfo(exampleDomain, urlInfoResponseGroups)
+	// Let's see if the trafficInfo function works
+	traffichistory(exampleDomain, trafficInfoResponseGroups)
+	// Let's see if the sitesLinkingIn function works
+	siteslinkingin(exampleDomain, sitesLinkingInResponseGroup)
+	// Let's see if the cat_browse function works
 }
