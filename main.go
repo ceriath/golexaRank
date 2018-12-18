@@ -181,7 +181,7 @@ func GetSitesLinkingIn(domainURL string, responseGroup string) *http.Response {
 	return ReturnOutput(URL, headers)
 }
 
-/** TODO
+/**
 This function provides the category browse information for a specified domain
 param: Domain name
 param: Path TODO: Wtf is this supposed to be?
@@ -200,7 +200,7 @@ func GetCategoryBrowseInformation(domainURL string, path string, responseGroup s
 	return ReturnOutput(URL, headers)
 }
 
-/** TODO
+/**
 This function takes in a domain name, headers for the request and returns an http.Response type
 param: Domain name string
 param: A map with headers
@@ -220,7 +220,7 @@ func ReturnOutput(requestURL string, headers map[string]string) *http.Response {
 	return response
 }
 
-/** TODO
+/**
 This function takes in the http Response type and parses into usable XML
 */
 func httpResponseToXML() {
