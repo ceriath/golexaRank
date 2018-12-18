@@ -1,13 +1,18 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestCreateV4Signature(t *testing.T) {
 
 }
 
 func TestSign(t *testing.T) {
-
+	key := []byte("Sucker")
+	dateStamp := []byte("20120215")
+	testDrive := sign(key, dateStamp)
+	print(testDrive)
 }
 
 func TestGetSignatureKey(t *testing.T) {
