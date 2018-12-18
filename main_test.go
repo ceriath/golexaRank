@@ -2,11 +2,24 @@ package main
 
 import (
 	"encoding/hex"
+	"strings"
 	"testing"
 )
 
 func TestCreateV4Signature(t *testing.T) {
-
+	parameterSet := make(map[string]string)
+	parameterSet["Action"] = "CategoryListings"
+	parameterSet["Url"] = "www.github.com"
+	parameterSet["ResponseGroup"] = "History"
+	parameterSet["Range"] = "31"
+	parameterSet["Start"] = "20070801"
+	requestUrl, headers := createV4Signature(parameterSet)
+	if !strings.Contains(requestUrl, "Action") {
+		t.Error("Issue with request")
+	}
+	if headers == nil {
+		t.Error("Issue with headers")
+	}
 }
 
 func TestSign(t *testing.T) {
