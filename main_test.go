@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"testing"
 )
 
@@ -12,7 +13,10 @@ func TestSign(t *testing.T) {
 	key := []byte("Sucker")
 	dateStamp := []byte("20120215")
 	testDrive := sign(key, dateStamp)
-	print(testDrive)
+	correctValue := "2dd290c65716bf297ee9feb426fc708002c6ace2dace50b925e93dee5a9141c9"
+	if hex.EncodeToString(testDrive) != correctValue {
+		t.Error("The hash values don't match")
+	}
 }
 
 func TestGetSignatureKey(t *testing.T) {
