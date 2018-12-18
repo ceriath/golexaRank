@@ -20,27 +20,46 @@ import (
 	"encoding/hex"
 	"net/http"
 	"os"
+	"sort"
 	"time"
 )
 
+// Global variables
+var accessID string
+var secretAccessKey string
+
 /**
-This does something
-param:
+This creates the HTTP request URL and corresponding headers for the request
+param: request_parameters map with the appropriate parameters for the request
 returns:
 */
-func createV4Signature(map[string]string) (string, map[string]string) {
+func createV4Signature(requestParams map[string]string) (string, map[string]string) {
 	method := "GET"
 	service := "awis"
 	host := "awis.us-west-1.amazonaws.com"
 	region := "us-west-1"
 	endpoint := "https://awis.amazonaws.com/api"
-	// TODO: Below
-	requestParameters := "awis"
+
+	requestParameters := ""
+	sortedKeySet := make([]string, 0, len(requestParams))
+
+	for key := range requestParams {
+		sortedKeySet = append(sortedKeySet, key)
+	}
+	sort.Strings(sortedKeySet)
+
+	for _, key := range sortedKeySet {
+		requestParameters += key
+		requestParameters += "="
+		requestParameters += requestParams[key]
+		requestParameters += "&"
+	}
+	requestParameters = requestParameters[:len(requestParameters)-1]
 
 	// We need to create a date for headers and the credential string
 	t := time.Now().UTC()
-	amzDate := t.Format("%Y%m%dT%H%M%SZ")
-	dateStamp := t.Format("%Y%m%d")
+	amzDate := t.Format("20060102T150405Z")
+	dateStamp := t.Format("20060102")
 
 	// Now to create a canonical request
 	canonicalUri := "/api"
@@ -61,27 +80,23 @@ func createV4Signature(map[string]string) (string, map[string]string) {
 	stringToSign := algorithm + "\n" + amzDate + "\n" + credentialScope + "\n" + canonicalRequestHash
 
 	// Calculate signature
-	// TODO
-	accessID := "TODO"
-	secretAccessKey := "TODO"
-	// TODO
 	signingKey := getSignatureKey(secretAccessKey, dateStamp, region, service)
-
-	// Sign the stringToSign using the signingKey TODO
 
 	signature := hex.EncodeToString(sign(signingKey, []byte(stringToSign)))
 
 	// Add signing information to the request
 	authorizationHeader := algorithm + " " + "Credential=" + accessID + "/" + credentialScope + ", " + "SignedHeaders=" + signedHeaders + ", " + "Signature=" + signature
 	headers := make(map[string]string)
-	headers["X-Amz-Date"] = amzDate
+	headers["Accept"] = "application/xml"
 	headers["Authorization"] = authorizationHeader
 	headers["Content-Type"] = "application/xml"
-	headers["Accept"] = "application/xml"
+	headers["X-Amz-Date"] = amzDate
 
 	// Create request url
 	requestUrl := endpoint + "?" + canonicalQuerystring
-
+	//for key, value := range headers {
+	//	println(key + " : " + value)
+	//}
 	return requestUrl, headers
 }
 
@@ -112,7 +127,7 @@ func getSignatureKey(key string, dateStamp string, regionName string, serviceNam
 	return kSigning
 }
 
-/**
+/** TODO
 This function provides us the URL information for a given domain
 param: Domain name of the site
 param: responseGroup for the GetUrlInfo function
@@ -121,9 +136,13 @@ returns: The response with the URL information as a http.Response type
 func GetUrlInfo(domainURL string, responseGroup string) *http.Response {
 	params := make(map[string]string)
 	params["Action"] = "UrlInfo"
-	params["Url"] = domainURL
 	params["ResponseGroup"] = responseGroup
+	params["Url"] = domainURL
 	URL, headers := createV4Signature(params)
+	//for key, value := range headers {
+	//	print(key + ": ")
+	//	println(value)
+	//}
 	return ReturnOutput(URL, headers)
 }
 
@@ -139,15 +158,15 @@ func GetTrafficHistory(domainURL string, responseGroup string) *http.Response {
 	start := "20070801"
 	params := make(map[string]string)
 	params["Action"] = "TrafficHistory"
-	params["Url"] = domainURL
-	params["ResponseGroup"] = responseGroup
 	params["Range"] = myRange
+	params["ResponseGroup"] = responseGroup
 	params["Start"] = start
+	params["Url"] = domainURL
 	URL, headers := createV4Signature(params)
 	return ReturnOutput(URL, headers)
 }
 
-/**
+/** TODO
 This function provides us the information on sites linking in for a specified domain
 param: Domain name of the site
 param: Response group
@@ -156,13 +175,13 @@ returns: The response with the get sites linking data as a http.Response type
 func GetSitesLinkingIn(domainURL string, responseGroup string) *http.Response {
 	params := make(map[string]string)
 	params["Action"] = "SitesLinkingIn"
-	params["Url"] = domainURL
 	params["ResponseGroup"] = responseGroup
+	params["Url"] = domainURL
 	URL, headers := createV4Signature(params)
 	return ReturnOutput(URL, headers)
 }
 
-/**
+/** TODO
 This function provides the category browse information for a specified domain
 param: Domain name
 param: Path TODO: Wtf is this supposed to be?
@@ -173,24 +192,24 @@ returns: URL, headers generated from the createV4Signature function
 func GetCategoryBrowseInformation(domainURL string, path string, responseGroup string, descriptions string) *http.Response {
 	params := make(map[string]string)
 	params["Action"] = "CategoryListings"
-	params["ResponseGroup"] = "Listings"
+	params["Descriptions"] = descriptions
 	// Add quote(path) to the below
 	params["Path"] = "Listings"
-	params["Descriptions"] = descriptions
+	params["ResponseGroup"] = "Listings"
 	URL, headers := createV4Signature(params)
 	return ReturnOutput(URL, headers)
 }
 
-/**
+/** TODO
 This function takes in a domain name, headers for the request and returns an http.Response type
 param: Domain name string
 param: A map with headers
 returns: An HTTP response type object
 */
-func ReturnOutput(domainURL string, headers map[string]string) *http.Response {
+func ReturnOutput(requestURL string, headers map[string]string) *http.Response {
 	// Look up CheckRedirect policies and see if one should be added here
 	client := &http.Client{}
-	request, _ := http.NewRequest("GET", domainURL, nil)
+	request, _ := http.NewRequest("GET", requestURL, nil)
 	for index, element := range headers {
 		request.Header.Add(index, element)
 	}
@@ -201,7 +220,7 @@ func ReturnOutput(domainURL string, headers map[string]string) *http.Response {
 	return response
 }
 
-/**
+/** TODO
 This function takes in the http Response type and parses into usable XML
 */
 func httpResponseToXML() {
@@ -209,20 +228,63 @@ func httpResponseToXML() {
 }
 
 func main() {
-	urlInfoResponseGroups := "RelatedLinks,Categories,Rank,ContactInfo,RankByCountry,UsageStats,Speed,Language,OwnedDomains,LinksInCount,SiteData,AdultContent"
+	accessID = os.Getenv("AWS_ACCESS_ID")
+	secretAccessKey = os.Getenv("AWS_SECRET_ACCESS_KEY")
+	urlInfoResponseGroups := "RelatedLinks,Categories,Rank,ContactInfo,RankByCountry,UsageStats,Speed,Language," +
+		"OwnedDomains,LinksInCount,SiteData,AdultContent"
 	trafficInfoResponseGroups := "History"
 	sitesLinkingInResponseGroup := "SitesLinkingIn"
 	categoryBrowseInfoResponseGroup := "Categories,RelatedCategories,LanguageCategories,LetterBars"
 	exampleDomain := "www.github.com"
 	// Let's see if the GetUrlInfo function works
-	GetUrlInfo(exampleDomain, urlInfoResponseGroups)
+	response := GetUrlInfo(exampleDomain, urlInfoResponseGroups)
+	if response.StatusCode != 200 {
+		println("Response status code: " + response.Status)
+		println("Response headers: ")
+		for key, value := range response.Header {
+			print(key + ": ")
+			for v := range value {
+				println(v)
+			}
+		}
+	}
 	// Let's see if the trafficInfo function works
-	GetTrafficHistory(exampleDomain, trafficInfoResponseGroups)
+	response = GetTrafficHistory(exampleDomain, trafficInfoResponseGroups)
+	if response.StatusCode != 200 {
+		println("Response status code: " + response.Status)
+		println("Response headers: ")
+		for key, value := range response.Header {
+			print(key + ": ")
+			for v := range value {
+				println(v)
+			}
+		}
+	}
 	// Let's see if the sitesLinkingIn function works
-	GetSitesLinkingIn(exampleDomain, sitesLinkingInResponseGroup)
+	response = GetSitesLinkingIn(exampleDomain, sitesLinkingInResponseGroup)
+	if response.StatusCode != 200 {
+		println("Response status code: " + response.Status)
+		println("Response headers: ")
+		for key, value := range response.Header {
+			print(key + ": ")
+			for v := range value {
+				println(v)
+			}
+		}
+	}
 	// Let's see if the GetCategoryBrowseInformation function works
 	// TODO: Change this below
 	path := "True"
 	description := "True"
-	GetCategoryBrowseInformation(exampleDomain, path, categoryBrowseInfoResponseGroup, description)
+	response = GetCategoryBrowseInformation(exampleDomain, path, categoryBrowseInfoResponseGroup, description)
+	if response.StatusCode != 200 {
+		println("Response status code: " + response.Status)
+		println("Response headers: ")
+		for key, value := range response.Header {
+			print(key + ": ")
+			for v := range value {
+				println(v)
+			}
+		}
+	}
 }
