@@ -1,8 +1,11 @@
-// Basically we need to provide 3 input variables:
-// 1. Access_Key_ID
-// 2. Secret_Access_Key
-// 3. Website
-// And get the output for the given website
+/**
+Basically we need to provide 3 input variables:
+1. Access_Key_ID
+2. Secret_Access_Key
+3. Website
+And get the output for the given website
+TODO: https://stackoverflow.com/questions/21961615/why-doesnt-go-allow-nested-function-declarations-functions-inside-functions
+*/
 
 /*
 Just tinkering around with Go
@@ -12,12 +15,10 @@ This is based off of https://github.com/ashim888/awis
 package main
 
 import (
-	"crypto/sha256"
 	"crypto/hmac"
-	"github.com/anaskhan96/soup"
-	"hash"
+	"crypto/sha256"
+	"encoding/hex"
 	"net/http"
-	"net/url"
 	"os"
 	"time"
 )
@@ -26,13 +27,14 @@ import (
 This does something
 param:
 returns:
- */
-func createV4Signature(map[string]string) (string, map[string]string)  {
+*/
+func createV4Signature(map[string]string) (string, map[string]string) {
 	method := "GET"
 	service := "awis"
 	host := "awis.us-west-1.amazonaws.com"
 	region := "us-west-1"
 	endpoint := "https://awis.amazonaws.com/api"
+	// TODO: Below
 	requestParameters := "awis"
 
 	// We need to create a date for headers and the credential string
@@ -45,13 +47,18 @@ func createV4Signature(map[string]string) (string, map[string]string)  {
 	canonicalQuerystring := requestParameters
 	canonicalHeaders := "host:" + host + "\n" + "x-amz-date:" + amzDate + "\n"
 	signedHeaders := "host;x-amz-date"
-	payloadHash := 0 // TODO
+	payloadHashCreator := sha256.New()
+	payloadHashCreator.Write([]byte(""))
+	payloadHash := hex.EncodeToString(payloadHashCreator.Sum(nil))
 	canonicalRequest := method + "\n" + canonicalUri + "\n" + canonicalQuerystring + "\n" + canonicalHeaders + "\n" + signedHeaders + "\n" + payloadHash
 
 	// Create string to sign
 	algorithm := "AWS4-HMAC-SHA256"
 	credentialScope := dateStamp + "/" + region + "/" + service + "/" + "aws4_request"
-	stringToSign := algorithm + "\n" + amzDate + "\n" + credentialScope + "\n" +  hashlib.sha256(canonicalRequest.encode('utf8')).hexdigest() // TODO
+	canonicalRequestHashCreator := sha256.New()
+	canonicalRequestHashCreator.Write([]byte(canonicalRequest))
+	canonicalRequestHash := hex.EncodeToString(canonicalRequestHashCreator.Sum(nil))
+	stringToSign := algorithm + "\n" + amzDate + "\n" + credentialScope + "\n" + canonicalRequestHash
 
 	// Calculate signature
 	// TODO
@@ -61,10 +68,11 @@ func createV4Signature(map[string]string) (string, map[string]string)  {
 	signingKey := getSignatureKey(secretAccessKey, dateStamp, region, service)
 
 	// Sign the stringToSign using the signingKey TODO
-	signature := hmac.new(signingKey, (stringToSign).encode('utf-8'), hashlib.sha256).hexdigest()
+
+	signature := hex.EncodeToString(sign(signingKey, []byte(stringToSign)))
 
 	// Add signing information to the request
-	authorizationHeader := algorithm + " " + "Credential=" + accessId + "/" + credentialScope + ", " +  "SignedHeaders=" + signedHeaders + ", " + "Signature=" + signature
+	authorizationHeader := algorithm + " " + "Credential=" + accessID + "/" + credentialScope + ", " + "SignedHeaders=" + signedHeaders + ", " + "Signature=" + signature
 	headers := make(map[string]string)
 	headers["X-Amz-Date"] = amzDate
 	headers["Authorization"] = authorizationHeader
@@ -77,26 +85,31 @@ func createV4Signature(map[string]string) (string, map[string]string)  {
 	return requestUrl, headers
 }
 
-
 /**
-TODO: https://stackoverflow.com/questions/21961615/why-doesnt-go-allow-nested-function-declarations-functions-inside-functions
-This does something
-param:
-returns:
- */
-func sign (key string, msg string) {
+This function provides the SHA256 hash value of a message and key
+More on this at:
+https://docs.aws.amazon.com/general/latest/gr/signature-v4-examples.html
+param: Key and message as byte arrays
+returns: The SHA256 hash value of the key and message
+*/
+func sign(key []byte, msg []byte) []byte {
 	mac := hmac.New(sha256.New, []byte(key))
-	mac.Write([]byte(msg))
+	mac.Write(msg)
+	return mac.Sum(nil)
 }
 
-
 /**
-This does something
+This function takes in a key, the dateStamp, AWS region name, AWS service name to create a signature key that follows
+AWS's request format. The calculated value is returned as a byte array.
 param:
 returns:
- */
-func getSignatureKey(key string, dateStamp string, regionName  string, serviceName  string)  {
-
+*/
+func getSignatureKey(key string, dateStamp string, regionName string, serviceName string) []byte {
+	kDate := sign([]byte("AWS4"+key), []byte(dateStamp))
+	kRegion := sign(kDate, []byte(regionName))
+	kService := sign(kRegion, []byte(serviceName))
+	kSigning := sign(kService, []byte("aws4_request"))
+	return kSigning
 }
 
 /**
@@ -104,7 +117,7 @@ This function provides us the URL information for a given domain
 param: Domain name of the site
 param: responseGroup for the GetUrlInfo function
 returns: The response with the URL information as a http.Response type
- */
+*/
 func GetUrlInfo(domainURL string, responseGroup string) *http.Response {
 	params := make(map[string]string)
 	params["Action"] = "UrlInfo"
@@ -120,7 +133,7 @@ This function provides us the traffic history of the given domain
 param: Domain name of the site
 param: ResponseGroup for getting the traffic history
 returns: The response with the traffic history data as a http.Response type
- */
+*/
 func GetTrafficHistory(domainURL string, responseGroup string) *http.Response {
 	myRange := "31"
 	start := "20070801"
@@ -139,7 +152,7 @@ This function provides us the information on sites linking in for a specified do
 param: Domain name of the site
 param: Response group
 returns: The response with the get sites linking data as a http.Response type
- */
+*/
 func GetSitesLinkingIn(domainURL string, responseGroup string) *http.Response {
 	params := make(map[string]string)
 	params["Action"] = "SitesLinkingIn"
@@ -156,7 +169,7 @@ param: Path TODO: Wtf is this supposed to be?
 param: responseGroup
 param: descriptions
 returns: URL, headers generated from the createV4Signature function
- */
+*/
 func GetCategoryBrowseInformation(domainURL string, path string, responseGroup string, descriptions string) *http.Response {
 	params := make(map[string]string)
 	params["Action"] = "CategoryListings"
@@ -173,10 +186,10 @@ This function takes in a domain name, headers for the request and returns an htt
 param: Domain name string
 param: A map with headers
 returns: An HTTP response type object
- */
-func ReturnOutput(domainURL string, headers map[string]string) *http.Response  {
+*/
+func ReturnOutput(domainURL string, headers map[string]string) *http.Response {
 	// Look up CheckRedirect policies and see if one should be added here
-	client := &http.Client {}
+	client := &http.Client{}
 	request, _ := http.NewRequest("GET", domainURL, nil)
 	for index, element := range headers {
 		request.Header.Add(index, element)
@@ -190,7 +203,7 @@ func ReturnOutput(domainURL string, headers map[string]string) *http.Response  {
 
 /**
 This function takes in the http Response type and parses into usable XML
- */
+*/
 func httpResponseToXML() {
 
 }
