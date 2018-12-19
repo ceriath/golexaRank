@@ -18,9 +18,12 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -39,6 +42,16 @@ func createV4Signature(requestParams map[string]string) (string, map[string]stri
 	host := "awis.us-west-1.amazonaws.com"
 	region := "us-west-1"
 	endpoint := "https://awis.amazonaws.com/api"
+	// accessID = os.Getenv("AWS_ACCESS_ID")
+	// secretAccessKey = os.Getenv("AWS_SECRET_ACCESS_KEY")
+	fileReadBytes, err := ioutil.ReadFile("credentials.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fileReadString := string(fileReadBytes)
+	fileReadStringSplit := strings.Split(fileReadString, "\n")
+	accessID := fileReadStringSplit[0]
+	secretAccessKey := fileReadStringSplit[1]
 
 	requestParameters := ""
 	sortedKeySet := make([]string, 0, len(requestParams))
@@ -94,9 +107,9 @@ func createV4Signature(requestParams map[string]string) (string, map[string]stri
 
 	// Create request url
 	requestUrl := endpoint + "?" + canonicalQuerystring
-	//for key, value := range headers {
-	//	println(key + " : " + value)
-	//}
+	// for key, value := range headers {
+	// 	println(key + " : " + value)
+	// }
 	return requestUrl, headers
 }
 
@@ -228,8 +241,6 @@ func httpResponseToXML() {
 }
 
 func main() {
-	accessID = os.Getenv("AWS_ACCESS_ID")
-	secretAccessKey = os.Getenv("AWS_SECRET_ACCESS_KEY")
 	urlInfoResponseGroups := "RelatedLinks,Categories,Rank,ContactInfo,RankByCountry,UsageStats,Speed,Language," +
 		"OwnedDomains,LinksInCount,SiteData,AdultContent"
 	trafficInfoResponseGroups := "History"
