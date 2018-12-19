@@ -50,8 +50,8 @@ func createV4Signature(requestParams map[string]string) (string, map[string]stri
 	}
 	fileReadString := string(fileReadBytes)
 	fileReadStringSplit := strings.Split(fileReadString, "\n")
-	accessID := fileReadStringSplit[0]
-	secretAccessKey := fileReadStringSplit[1]
+	accessID = fileReadStringSplit[0]
+	secretAccessKey = fileReadStringSplit[1]
 
 	requestParameters := ""
 	sortedKeySet := make([]string, 0, len(requestParams))
