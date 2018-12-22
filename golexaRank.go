@@ -4,6 +4,9 @@ TODO:
 - Complete test coverage for all the functions
 - Make provisions for reading the credentials
 - Look into the path and description variable requirements in the GetCategoryBrowseInformation function
+- Design the GetTrafficHistory function for modularity. Make the myRange and start parameters override-able
+- Improve overall function and package descriptions
+- Review GetCategoryBrowseInformation and check if it required a domainURL
 */
 
 package golexaRank
@@ -21,7 +24,6 @@ import (
 	"time"
 )
 
-// Global variables
 var accessID string
 var secretAccessKey string
 
@@ -36,8 +38,6 @@ func CreateV4Signature(requestParams map[string]string) (string, map[string]stri
 	host := "awis.us-west-1.amazonaws.com"
 	region := "us-west-1"
 	endpoint := "https://awis.amazonaws.com/api"
-	// accessID = os.Getenv("AWS_ACCESS_ID")
-	// secretAccessKey = os.Getenv("AWS_SECRET_ACCESS_KEY")
 	fileReadBytes, err := ioutil.ReadFile("credentials.txt")
 	if err != nil {
 		fmt.Println(err)
@@ -134,7 +134,7 @@ func GetSignatureKey(key string, dateStamp string, regionName string, serviceNam
 	return kSigning
 }
 
-/** TODO
+/**
 This function provides us the URL information for a given domain
 param: Domain name of the site
 param: responseGroup for the GetUrlInfo function
@@ -151,7 +151,6 @@ func GetUrlInfo(domainURL string, responseGroup string) *http.Response {
 
 /**
 This function provides us the traffic history of the given domain
-# TODO: Make the myRange and start parameters override-able
 param: Domain name of the site
 param: ResponseGroup for getting the traffic history
 returns: The response with the traffic history data as a http.Response type
@@ -169,7 +168,7 @@ func GetTrafficHistory(domainURL string, responseGroup string) *http.Response {
 	return ReturnOutput(URL, headers)
 }
 
-/** TODO
+/**
 This function provides us the information on sites linking in for a specified domain
 param: Domain name of the site
 param: Response group
