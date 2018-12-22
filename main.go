@@ -15,6 +15,7 @@ This is based off of https://github.com/ashim888/awis
 package main
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -83,7 +84,7 @@ func createV4Signature(requestParams map[string]string) (string, map[string]stri
 	payloadHashCreator.Write([]byte(""))
 	payloadHash := hex.EncodeToString(payloadHashCreator.Sum(nil))
 	canonicalRequest := method + "\n" + canonicalUri + "\n" + canonicalQuerystring + "\n" + canonicalHeaders + "\n" + signedHeaders + "\n" + payloadHash
-
+	println(canonicalRequest)
 	// Create string to sign
 	algorithm := "AWS4-HMAC-SHA256"
 	credentialScope := dateStamp + "/" + region + "/" + service + "/" + "aws4_request"
@@ -152,10 +153,6 @@ func GetUrlInfo(domainURL string, responseGroup string) *http.Response {
 	params["ResponseGroup"] = responseGroup
 	params["Url"] = domainURL
 	URL, headers := createV4Signature(params)
-	//for key, value := range headers {
-	//	print(key + ": ")
-	//	println(value)
-	//}
 	return ReturnOutput(URL, headers)
 }
 
@@ -241,23 +238,33 @@ func httpResponseToXML() {
 }
 
 func main() {
-	urlInfoResponseGroups := "RelatedLinks,Categories,Rank,ContactInfo,RankByCountry,UsageStats,Speed,Language," +
-		"OwnedDomains,LinksInCount,SiteData,AdultContent"
+	// Check for the Python urlencode equivalent of this
+	urlInfoResponseGroups := "RelatedLinks%2CCategories%2CRank%2CContactInfo%2CRankByCountry%2CUsageStats%2CSpeed%2CLanguage%2C" +
+		"OwnedDomains%2CLinksInCount%2CSiteData%2CAdultContent"
 	trafficInfoResponseGroups := "History"
 	sitesLinkingInResponseGroup := "SitesLinkingIn"
-	categoryBrowseInfoResponseGroup := "Categories,RelatedCategories,LanguageCategories,LetterBars"
+	categoryBrowseInfoResponseGroup := "Categories%2CRelatedCategories%2CLanguageCategories%2CLetterBars"
 	exampleDomain := "www.github.com"
 	// Let's see if the GetUrlInfo function works
 	response := GetUrlInfo(exampleDomain, urlInfoResponseGroups)
 	if response.StatusCode != 200 {
 		println("Response status code: " + response.Status)
 		println("Response headers: ")
-		for key, value := range response.Header {
-			print(key + ": ")
-			for v := range value {
-				println(v)
-			}
+		//for key, value := range response.Header {
+		//	print(key + ": ")
+		//	for v := range value {
+		//		println(v)
+		//	}
+		//}
+		buf := new(bytes.Buffer)
+		_, err := buf.ReadFrom(response.Body)
+		if err != nil {
+			println("Problem reading response.Body")
 		}
+		newStr := buf.String()
+		fmt.Printf(newStr)
+	} else {
+		println("Success!")
 	}
 	// Let's see if the trafficInfo function works
 	response = GetTrafficHistory(exampleDomain, trafficInfoResponseGroups)
