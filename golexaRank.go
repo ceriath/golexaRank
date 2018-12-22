@@ -32,7 +32,7 @@ This creates the HTTP request URL and corresponding headers for the request
 param: request_parameters map with the appropriate parameters for the request
 returns:
 */
-func CreateV4Signature(requestParams map[string]string) (string, map[string]string) {
+func createV4Signature(requestParams map[string]string) (string, map[string]string) {
 	method := "GET"
 	service := "awis"
 	host := "awis.us-west-1.amazonaws.com"
@@ -78,7 +78,7 @@ func CreateV4Signature(requestParams map[string]string) (string, map[string]stri
 	payloadHash := hex.EncodeToString(payloadHashCreator.Sum(nil))
 	canonicalRequest := method + "\n" + canonicalUri + "\n" + canonicalQuerystring + "\n" + canonicalHeaders + "\n" + signedHeaders + "\n" + payloadHash
 	println(canonicalRequest)
-	// Create string to Sign
+	// Create string to sign
 	algorithm := "AWS4-HMAC-SHA256"
 	credentialScope := dateStamp + "/" + region + "/" + service + "/" + "aws4_request"
 	canonicalRequestHashCreator := sha256.New()
@@ -87,9 +87,9 @@ func CreateV4Signature(requestParams map[string]string) (string, map[string]stri
 	stringToSign := algorithm + "\n" + amzDate + "\n" + credentialScope + "\n" + canonicalRequestHash
 
 	// Calculate signature
-	signingKey := GetSignatureKey(secretAccessKey, dateStamp, region, service)
+	signingKey := getSignatureKey(secretAccessKey, dateStamp, region, service)
 
-	signature := hex.EncodeToString(Sign(signingKey, []byte(stringToSign)))
+	signature := hex.EncodeToString(sign(signingKey, []byte(stringToSign)))
 
 	// Add signing information to the request
 	authorizationHeader := algorithm + " " + "Credential=" + accessID + "/" + credentialScope + ", " + "SignedHeaders=" + signedHeaders + ", " + "Signature=" + signature
@@ -114,7 +114,7 @@ https://docs.aws.amazon.com/general/latest/gr/signature-v4-examples.html
 param: Key and message as byte arrays
 returns: The SHA256 hash value of the key and message
 */
-func Sign(key []byte, msg []byte) []byte {
+func sign(key []byte, msg []byte) []byte {
 	mac := hmac.New(sha256.New, []byte(key))
 	mac.Write(msg)
 	return mac.Sum(nil)
@@ -126,11 +126,11 @@ AWS's request format. The calculated value is returned as a byte array.
 param:
 returns:
 */
-func GetSignatureKey(key string, dateStamp string, regionName string, serviceName string) []byte {
-	kDate := Sign([]byte("AWS4"+key), []byte(dateStamp))
-	kRegion := Sign(kDate, []byte(regionName))
-	kService := Sign(kRegion, []byte(serviceName))
-	kSigning := Sign(kService, []byte("aws4_request"))
+func getSignatureKey(key string, dateStamp string, regionName string, serviceName string) []byte {
+	kDate := sign([]byte("AWS4"+key), []byte(dateStamp))
+	kRegion := sign(kDate, []byte(regionName))
+	kService := sign(kRegion, []byte(serviceName))
+	kSigning := sign(kService, []byte("aws4_request"))
 	return kSigning
 }
 
@@ -145,8 +145,8 @@ func GetUrlInfo(domainURL string, responseGroup string) *http.Response {
 	params["Action"] = "UrlInfo"
 	params["ResponseGroup"] = responseGroup
 	params["Url"] = domainURL
-	URL, headers := CreateV4Signature(params)
-	return ReturnOutput(URL, headers)
+	URL, headers := createV4Signature(params)
+	return returnOutput(URL, headers)
 }
 
 /**
@@ -164,8 +164,8 @@ func GetTrafficHistory(domainURL string, responseGroup string) *http.Response {
 	params["ResponseGroup"] = responseGroup
 	params["Start"] = start
 	params["Url"] = domainURL
-	URL, headers := CreateV4Signature(params)
-	return ReturnOutput(URL, headers)
+	URL, headers := createV4Signature(params)
+	return returnOutput(URL, headers)
 }
 
 /**
@@ -179,8 +179,8 @@ func GetSitesLinkingIn(domainURL string, responseGroup string) *http.Response {
 	params["Action"] = "SitesLinkingIn"
 	params["ResponseGroup"] = responseGroup
 	params["Url"] = domainURL
-	URL, headers := CreateV4Signature(params)
-	return ReturnOutput(URL, headers)
+	URL, headers := createV4Signature(params)
+	return returnOutput(URL, headers)
 }
 
 /**
@@ -189,7 +189,7 @@ param: Domain name
 param: Path
 param: responseGroup
 param: descriptions
-returns: URL, headers generated from the CreateV4Signature function
+returns: URL, headers generated from the createV4Signature function
 */
 func GetCategoryBrowseInformation(domainURL string, path string, responseGroup string, descriptions string) *http.Response {
 	params := make(map[string]string)
@@ -198,8 +198,8 @@ func GetCategoryBrowseInformation(domainURL string, path string, responseGroup s
 	// Add quote(path) to the below
 	params["Path"] = "Listings"
 	params["ResponseGroup"] = "Listings"
-	URL, headers := CreateV4Signature(params)
-	return ReturnOutput(URL, headers)
+	URL, headers := createV4Signature(params)
+	return returnOutput(URL, headers)
 }
 
 /**
@@ -208,7 +208,7 @@ param: Domain name string
 param: A map with headers
 returns: An HTTP response type object
 */
-func ReturnOutput(requestURL string, headers map[string]string) *http.Response {
+func returnOutput(requestURL string, headers map[string]string) *http.Response {
 	// Look up CheckRedirect policies and see if one should be added here
 	client := &http.Client{}
 	request, _ := http.NewRequest("GET", requestURL, nil)
