@@ -1,4 +1,4 @@
-# golexaRank
+# golexaRank (This is currently a work in progress)
 A super simple request-response library written in Go to use Amazon's Alexa Web Information Service API. Clean and easy!
 
 A Python -> Golang port of: https://github.com/ashim888/awis
