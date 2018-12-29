@@ -1,6 +1,6 @@
 /**
 TODO:
-- Complete test coverage for all the functions
+- Test coverage for the exported functions
 - Check the ResponseGroup strings and look for an urlencode equivalent
 - Look into the path and description variable requirements in the GetCategoryBrowseInformation function
 - Design the GetTrafficHistory function for modularity. Make the myRange and start parameters override-able
@@ -119,6 +119,25 @@ func getSignatureKey(key string, dateStamp string, regionName string, serviceNam
 }
 
 /**
+This function issues the custom request we've created and returns the response as an http.Response type
+params: A request URL string and a map with the request headers
+returns: The response to the HTTP request as an http.Response type
+*/
+func returnOutput(requestURL string, headers map[string]string) *http.Response {
+	// Look up CheckRedirect policies and see if one should be added here
+	client := &http.Client{}
+	request, _ := http.NewRequest("GET", requestURL, nil)
+	for index, element := range headers {
+		request.Header.Add(index, element)
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		os.Exit(1)
+	}
+	return response
+}
+
+/**
 This function provides us the URL information for a given domain
 params: The domain name string, a responseGroup string, and API credentials for the GetUrlInfo function
 returns: The response with the URL information as an http.Response type
@@ -178,23 +197,4 @@ func GetCategoryBrowseInformation(domainURL string, path string, responseGroup s
 	params["ResponseGroup"] = "Listings"
 	URL, headers := createV4Signature(params, accessID, secretAccessKey)
 	return returnOutput(URL, headers)
-}
-
-/**
-This function issues the custom request we've created and returns the response as an http.Response type
-params: A request URL string and a map with the request headers
-returns: The response to the HTTP request as an http.Response type
-*/
-func returnOutput(requestURL string, headers map[string]string) *http.Response {
-	// Look up CheckRedirect policies and see if one should be added here
-	client := &http.Client{}
-	request, _ := http.NewRequest("GET", requestURL, nil)
-	for index, element := range headers {
-		request.Header.Add(index, element)
-	}
-	response, err := client.Do(request)
-	if err != nil {
-		os.Exit(1)
-	}
-	return response
 }
