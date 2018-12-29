@@ -49,7 +49,7 @@ func main() {
 		println("Success!")
 	}
 	// Let's see if the trafficInfo function works
-	response = golexaRank.GetTrafficHistory(exampleDomain, trafficInfoResponseGroups)
+	response = golexaRank.GetTrafficHistory(exampleDomain, trafficInfoResponseGroups, accessID, secretAccessKey)
 	if response.StatusCode != 200 {
 		println("Response status code: " + response.Status)
 		println("Response headers: ")
@@ -61,7 +61,7 @@ func main() {
 		}
 	}
 	// Let's see if the sitesLinkingIn function works
-	response = golexaRank.GetSitesLinkingIn(exampleDomain, sitesLinkingInResponseGroup)
+	response = golexaRank.GetSitesLinkingIn(exampleDomain, sitesLinkingInResponseGroup, accessID, secretAccessKey)
 	if response.StatusCode != 200 {
 		println("Response status code: " + response.Status)
 		println("Response headers: ")
@@ -76,7 +76,7 @@ func main() {
 	// TODO: Change this below
 	path := "True"
 	description := "True"
-	response = golexaRank.GetCategoryBrowseInformation(exampleDomain, path, categoryBrowseInfoResponseGroup, description)
+	response = golexaRank.GetCategoryBrowseInformation(exampleDomain, path, categoryBrowseInfoResponseGroup, description, accessID, secretAccessKey)
 	if response.StatusCode != 200 {
 		println("Response status code: " + response.Status)
 		println("Response headers: ")
