@@ -2,6 +2,8 @@ package golexaRank
 
 import (
 	"encoding/hex"
+	"fmt"
+	"io/ioutil"
 	"strings"
 	"testing"
 )
@@ -14,7 +16,18 @@ func TestCreateV4Signature(t *testing.T) {
 	parameterSet["ResponseGroup"] = "History"
 	parameterSet["Range"] = "31"
 	parameterSet["Start"] = "20070801"
-	requestUrl, headers := createV4Signature(parameterSet)
+
+	// Reading the required credentials
+	fileReadBytes, err := ioutil.ReadFile("credentials.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fileReadString := string(fileReadBytes)
+	fileReadStringSplit := strings.Split(fileReadString, "\n")
+	accessID := fileReadStringSplit[0]
+	secretAccessKey := fileReadStringSplit[1]
+
+	requestUrl, headers := createV4Signature(parameterSet, accessID, secretAccessKey)
 	if !strings.Contains(requestUrl, "Action") {
 		t.Error("Issue with request")
 	}
