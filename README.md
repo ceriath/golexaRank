@@ -1,6 +1,6 @@
 # golexaRank
 
-A Go library to access Amazon's Alexa Web Information Service API
+A library to access Amazon's Alexa Web Information Service API with Golang
 
 A Python -> Golang port of: https://github.com/ashim888/awis
 
