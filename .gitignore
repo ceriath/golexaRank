@@ -1,2 +1,3 @@
 .gitignore
 credentials.txt
+examples/credentials.txt
