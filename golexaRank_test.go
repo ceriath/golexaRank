@@ -60,6 +60,32 @@ func TestGetSignatureKey(t *testing.T) {
 	}
 }
 
+func TestReturnOutput(t *testing.T) {
+	params := make(map[string]string)
+	params["Action"] = "UrlInfo"
+	params["ResponseGroup"] = "RelatedLinks%2CCategories%2CRank%2CContactInfo%2CRankByCountry%2CUsageStats%2CSpeed%2CLanguage%2C" +
+		"OwnedDomains%2CLinksInCount%2CSiteData%2CAdultContent"
+	params["Url"] = "www.github.com"
+
+	// Reading the required credentials
+	fileReadBytes, err := ioutil.ReadFile("credentials.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fileReadString := string(fileReadBytes)
+	fileReadStringSplit := strings.Split(fileReadString, "\n")
+	accessID := fileReadStringSplit[0]
+	secretAccessKey := fileReadStringSplit[1]
+
+	domainURL, headers := createV4Signature(params, accessID, secretAccessKey)
+	sampleReturnOutput := returnOutput(domainURL, headers)
+	if sampleReturnOutput.StatusCode != 200 {
+		println("Error!")
+		print("Response status code: ")
+		println(sampleReturnOutput.StatusCode)
+	}
+}
+
 // Test for internal helper functions end
 
 // Tests for exported functions start
@@ -76,10 +102,6 @@ func TestGetSitesLinkingIn(t *testing.T) {
 }
 
 func TestGetCategoryBrowseInformation(t *testing.T) {
-
-}
-
-func TestReturnOutput(t *testing.T) {
 
 }
 
