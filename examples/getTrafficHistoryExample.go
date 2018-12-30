@@ -23,7 +23,9 @@ func main() {
 	secretAccessKey := fileReadStringSplit[1]
 
 	// Let's see if the trafficInfo function works
-	response := golexaRank.GetTrafficHistory(exampleDomain, trafficInfoResponseGroups, accessID, secretAccessKey)
+	myRange := "31"
+	start := "20070801"
+	response := golexaRank.GetTrafficHistory(myRange, start, exampleDomain, trafficInfoResponseGroups, accessID, secretAccessKey)
 	if err != nil {
 		println("Error reading response.Body")
 	}

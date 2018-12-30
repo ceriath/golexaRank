@@ -159,9 +159,7 @@ This function provides us the traffic history of the given domain
 params: Domain name of the site, a responseGroup string for getting the traffic history, and the API credentials
 returns: The response with the traffic history data as an http.Response type
 */
-func GetTrafficHistory(domainURL string, responseGroup string, accessID string, secretAccessKey string) *http.Response {
-	myRange := "31"
-	start := "20070801"
+func GetTrafficHistory(myRange string, start string, domainURL string, responseGroup string, accessID string, secretAccessKey string) *http.Response {
 	params := make(map[string]string)
 	params["Action"] = "TrafficHistory"
 	params["Range"] = myRange
