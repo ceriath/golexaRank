@@ -35,11 +35,11 @@ func main() {
 
 	// Let's see if the GetUrlInfo function works
 	response := golexaRank.GetUrlInfo(exampleDomain, urlInfoResponseGroups, accessID, secretAccessKey)
-	buf := new(bytes.Buffer)
-	_, err = buf.ReadFrom(response.Body)
 	if err != nil {
 		println("Error reading response.Body")
 	}
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(response.Body)
 	newStr := buf.String()
 	fmt.Println(newStr)
 }
