@@ -90,7 +90,34 @@ func TestReturnOutput(t *testing.T) {
 
 // Tests for exported functions start
 func TestGetUrlInfo(t *testing.T) {
+	urlInfoResponseGroupList := []string{"RelatedLinks", "Categories", "Rank", "ContactInfo", "RankByCountry"}
+	var urlInfoResponseGroups string
+	length := len(urlInfoResponseGroupList)
+	for i, val := range urlInfoResponseGroupList {
+		if i != (length - 1) {
+			urlInfoResponseGroups += val
+			urlInfoResponseGroups += "%2C"
+		} else {
+			urlInfoResponseGroups += val
+		}
+	}
+	exampleDomain := "www.github.com"
 
+	// Reading the credentials required for issuing the requests
+	fileReadBytes, err := ioutil.ReadFile("credentials.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fileReadString := string(fileReadBytes)
+	fileReadStringSplit := strings.Split(fileReadString, "\n")
+	accessID := fileReadStringSplit[0]
+	secretAccessKey := fileReadStringSplit[1]
+
+	// Let's see if the GetUrlInfo function works
+	response := GetUrlInfo(exampleDomain, urlInfoResponseGroups, accessID, secretAccessKey)
+	if response.StatusCode != 200 {
+		t.Error("Status code is not 200!")
+	}
 }
 
 func TestGetTrafficHistory(t *testing.T) {
