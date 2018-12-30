@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	// Change this to an array of strings
 	// Check for the Python urlencode equivalent of this
 	urlInfoResponseGroups := "RelatedLinks%2CCategories%2CRank%2CContactInfo%2CRankByCountry%2CUsageStats%2CSpeed%2CLanguage%2C" +
 		"OwnedDomains%2CLinksInCount%2CSiteData%2CAdultContent"

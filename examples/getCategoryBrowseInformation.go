@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	// Change this to an array of strings
 	// Check for the Python urlencode equivalent of this
 	categoryBrowseInfoResponseGroup := "Categories%2CRelatedCategories%2CLanguageCategories%2CLetterBars"
 	exampleDomain := "www.github.com"

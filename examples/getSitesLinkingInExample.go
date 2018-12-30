@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	// Change this to an array of strings
 	// Check for the Python urlencode equivalent of this
 	sitesLinkingInResponseGroup := "SitesLinkingIn"
 	exampleDomain := "www.github.com"
