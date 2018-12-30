@@ -9,13 +9,7 @@ import (
 )
 
 func main() {
-	// Change this to an array of strings
-	// Check for the Python urlencode equivalent of this
-	urlInfoResponseGroups := "RelatedLinks%2CCategories%2CRank%2CContactInfo%2CRankByCountry%2CUsageStats%2CSpeed%2CLanguage%2C" +
-		"OwnedDomains%2CLinksInCount%2CSiteData%2CAdultContent"
 	trafficInfoResponseGroups := "History"
-	sitesLinkingInResponseGroup := "SitesLinkingIn"
-	categoryBrowseInfoResponseGroup := "Categories%2CRelatedCategories%2CLanguageCategories%2CLetterBars"
 	exampleDomain := "www.github.com"
 
 	// Reading the credentials required for issuing the requests
@@ -28,64 +22,13 @@ func main() {
 	accessID := fileReadStringSplit[0]
 	secretAccessKey := fileReadStringSplit[1]
 
-	// Let's see if the GetUrlInfo function works
-	response := golexaRank.GetUrlInfo(exampleDomain, urlInfoResponseGroups, accessID, secretAccessKey)
-	if response.StatusCode != 200 {
-		println("Response status code: " + response.Status)
-		println("Response headers: ")
-		//for key, value := range response.Header {
-		//	print(key + ": ")
-		//	for v := range value {
-		//		println(v)
-		//	}
-		//}
-		buf := new(bytes.Buffer)
-		_, err := buf.ReadFrom(response.Body)
-		if err != nil {
-			println("Problem reading response.Body")
-		}
-		newStr := buf.String()
-		fmt.Printf(newStr)
-	} else {
-		println("Success!")
-	}
 	// Let's see if the trafficInfo function works
-	response = golexaRank.GetTrafficHistory(exampleDomain, trafficInfoResponseGroups, accessID, secretAccessKey)
-	if response.StatusCode != 200 {
-		println("Response status code: " + response.Status)
-		println("Response headers: ")
-		for key, value := range response.Header {
-			print(key + ": ")
-			for v := range value {
-				println(v)
-			}
-		}
+	response := golexaRank.GetTrafficHistory(exampleDomain, trafficInfoResponseGroups, accessID, secretAccessKey)
+	if err != nil {
+		println("Error reading response.Body")
 	}
-	// Let's see if the sitesLinkingIn function works
-	response = golexaRank.GetSitesLinkingIn(exampleDomain, sitesLinkingInResponseGroup, accessID, secretAccessKey)
-	if response.StatusCode != 200 {
-		println("Response status code: " + response.Status)
-		println("Response headers: ")
-		for key, value := range response.Header {
-			print(key + ": ")
-			for v := range value {
-				println(v)
-			}
-		}
-	}
-	// Let's see if the GetCategoryBrowseInformation function works
-	// TODO: Change this below
-	path := "True"
-	description := "True"
-	response = golexaRank.GetCategoryBrowseInformation(exampleDomain, path, categoryBrowseInfoResponseGroup, description, accessID, secretAccessKey)
-	if response.StatusCode != 200 {
-		println("Response status code: " + response.Status)
-		println("Response headers: ")
-		for key, value := range response.Header {
-			print(key + ": ")
-			for v := range value {
-				println(v)
-			}
-		}
-	}
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(response.Body)
+	newStr := buf.String()
+	fmt.Println(newStr)
 }
