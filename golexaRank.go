@@ -183,19 +183,3 @@ func GetSitesLinkingIn(domainURL string, responseGroup string, accessID string, 
 	URL, headers := createV4Signature(params, accessID, secretAccessKey)
 	return returnOutput(URL, headers)
 }
-
-/**
-This function provides the category browse information for a specified domain
-params: A domain name string, a path string, a responseGroup string, a descriptions string, and the API credentials
-returns: Category Browse information of the given domain as an http.Response type
-*/
-func GetCategoryBrowseInformation(domainURL string, path string, responseGroup string, descriptions string, accessID string, secretAccessKey string) *http.Response {
-	params := make(map[string]string)
-	params["Action"] = "CategoryListings"
-	params["Descriptions"] = descriptions
-	// Add quote(path) to the below
-	params["Path"] = "Listings"
-	params["ResponseGroup"] = "Listings"
-	URL, headers := createV4Signature(params, accessID, secretAccessKey)
-	return returnOutput(URL, headers)
-}

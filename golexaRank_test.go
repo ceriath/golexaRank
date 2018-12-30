@@ -147,8 +147,4 @@ func TestGetSitesLinkingIn(t *testing.T) {
 
 }
 
-func TestGetCategoryBrowseInformation(t *testing.T) {
-
-}
-
 // Tests for exported functions end
