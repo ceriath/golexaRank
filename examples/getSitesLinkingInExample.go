@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/qwer7y/golexaRank"
 	"io/ioutil"
@@ -8,8 +9,6 @@ import (
 )
 
 func main() {
-	// Change this to an array of strings
-	// Check for the Python urlencode equivalent of this
 	sitesLinkingInResponseGroup := "SitesLinkingIn"
 	exampleDomain := "www.github.com"
 
@@ -23,16 +22,13 @@ func main() {
 	accessID := fileReadStringSplit[0]
 	secretAccessKey := fileReadStringSplit[1]
 
-	// Let's see if the sitesLinkingIn function works
+	// Let's see if the SitesLinkingIn function works
 	response := golexaRank.GetSitesLinkingIn(exampleDomain, sitesLinkingInResponseGroup, accessID, secretAccessKey)
-	if response.StatusCode != 200 {
-		println("Response status code: " + response.Status)
-		println("Response headers: ")
-		for key, value := range response.Header {
-			print(key + ": ")
-			for v := range value {
-				println(v)
-			}
-		}
+	if err != nil {
+		println("Error reading response.Body")
 	}
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(response.Body)
+	newStr := buf.String()
+	fmt.Println(newStr)
 }

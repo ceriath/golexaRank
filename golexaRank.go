@@ -1,15 +1,3 @@
-/**
-TODO:
-- Test coverage for the exported functions
-- Check the ResponseGroup strings and look for an urlencode equivalent
-- More modularity for all functions
-- Look into the path and description variable requirements in the GetCategoryBrowseInformation function
-- Design the GetTrafficHistory function for modularity. Make the myRange and start parameters override-able
-- Review GetCategoryBrowseInformation and check if it requires a domainURL
-- Format response body string to XML
-- Documentify the examples for ease of use
-*/
-
 package golexaRank
 
 import (
