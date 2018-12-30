@@ -9,10 +9,18 @@ import (
 )
 
 func main() {
-	// Change this to an array of strings
-	// Check for the Python urlencode equivalent of this
-	urlInfoResponseGroups := "RelatedLinks%2CCategories%2CRank%2CContactInfo%2CRankByCountry%2CUsageStats%2CSpeed%2CLanguage%2C" +
-		"OwnedDomains%2CLinksInCount%2CSiteData%2CAdultContent"
+	// Choose the response groups you want
+	urlInfoResponseGroupList := []string{"RelatedLinks", "Categories", "Rank", "ContactInfo", "RankByCountry", "UsageStats", "Speed", "Language", "OwnedDomains", "LinksInCount", "SiteData", "AdultContent"}
+	var urlInfoResponseGroups string
+	length := len(urlInfoResponseGroupList)
+	for i, val := range urlInfoResponseGroupList {
+		if i != (length - 1) {
+			urlInfoResponseGroups += val
+			urlInfoResponseGroups += "%2C"
+		} else {
+			urlInfoResponseGroups += val
+		}
+	}
 	exampleDomain := "www.github.com"
 
 	// Reading the credentials required for issuing the requests
@@ -27,23 +35,11 @@ func main() {
 
 	// Let's see if the GetUrlInfo function works
 	response := golexaRank.GetUrlInfo(exampleDomain, urlInfoResponseGroups, accessID, secretAccessKey)
-	if response.StatusCode != 200 {
-		println("Response status code: " + response.Status)
-		println("Response headers: ")
-		//for key, value := range response.Header {
-		//	print(key + ": ")
-		//	for v := range value {
-		//		println(v)
-		//	}
-		//}
-		buf := new(bytes.Buffer)
-		_, err := buf.ReadFrom(response.Body)
-		if err != nil {
-			println("Problem reading response.Body")
-		}
-		newStr := buf.String()
-		fmt.Printf(newStr)
-	} else {
-		println("Success!")
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(response.Body)
+	if err != nil {
+		println("Error reading response.Body")
 	}
+	newStr := buf.String()
+	fmt.Println(newStr)
 }
