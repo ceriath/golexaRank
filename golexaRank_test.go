@@ -121,7 +121,26 @@ func TestGetUrlInfo(t *testing.T) {
 }
 
 func TestGetTrafficHistory(t *testing.T) {
+	trafficInfoResponseGroups := "History"
+	exampleDomain := "www.github.com"
 
+	// Reading the credentials required for issuing the requests
+	fileReadBytes, err := ioutil.ReadFile("credentials.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fileReadString := string(fileReadBytes)
+	fileReadStringSplit := strings.Split(fileReadString, "\n")
+	accessID := fileReadStringSplit[0]
+	secretAccessKey := fileReadStringSplit[1]
+
+	// Let's see if the trafficInfo function works
+	myRange := "31"
+	start := "20070801"
+	response := GetTrafficHistory(myRange, start, exampleDomain, trafficInfoResponseGroups, accessID, secretAccessKey)
+	if response.StatusCode != 200 {
+		println("Status code is not 200")
+	}
 }
 
 func TestGetSitesLinkingIn(t *testing.T) {
