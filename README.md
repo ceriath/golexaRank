@@ -1,3 +1,5 @@
+![alt text](https://raw.githubusercontent.com/qwer7y/golexaRank/master/img/golexa.png)
+
 # golexaRank
 
 A Go library to access Amazon's Alexa Web Information Service API
