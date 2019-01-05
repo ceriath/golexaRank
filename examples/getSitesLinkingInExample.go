@@ -13,14 +13,8 @@ func main() {
 	exampleDomain := "www.github.com"
 
 	// Reading the credentials required for issuing the requests
-	fileReadBytes, err := ioutil.ReadFile("credentials.txt")
-	if err != nil {
-		fmt.Println(err)
-	}
-	fileReadString := string(fileReadBytes)
-	fileReadStringSplit := strings.Split(fileReadString, "\n")
-	accessID := fileReadStringSplit[0]
-	secretAccessKey := fileReadStringSplit[1]
+	accessID := "Add_Your_AccessID_here" // Avoid hardcoding this. Read it from file and add it as an environment variable
+	secretAccessKey := "Add_Your_SecretAccessKey_here"
 
 	// Let's see if the SitesLinkingIn function works
 	response := golexaRank.GetSitesLinkingIn(exampleDomain, sitesLinkingInResponseGroup, accessID, secretAccessKey)
