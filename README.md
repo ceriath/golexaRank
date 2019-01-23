@@ -2,6 +2,8 @@
 
 # golexaRank
 
+[![cover.run](https://cover.run/go/https:/github.com/qwer7y/golexaRank.svg?style=flat&tag=golang-1.10)](https://cover.run/go?tag=golang-1.10&repo=https%3A%2Fgithub.com%2Fqwer7y%2FgolexaRank)
+
 A Go library to access Amazon's Alexa Web Information Service API
 
 The Amazon Alexa Web Information Services API was a confusing API to work with. It wasn't impossible to work with, but it could have been way simpler. https://github.com/ashim888/awis really simplified stuff for me.
