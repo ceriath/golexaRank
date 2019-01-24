@@ -2,7 +2,7 @@
 
 # golexaRank
 
-[![GoDoc](https://godoc.org/github.com/nathany/looper?status.svg)](http://godoc.org/qwer7y/golexaRank)
+[![GoDoc](https://godoc.org/github.com/nathany/looper?status.svg)](https://godoc.org/github.com/qwer7y/golexaRank)
 [![Go Report Card](https://goreportcard.com/badge/github.com/qwer7y/golexaRank)](https://goreportcard.com/report/github.com/qwer7y/golexaRank)
 [![cover.run](https://cover.run/go/https:/github.com/qwer7y/golexaRank.svg?style=flat&tag=golang-1.10)](https://cover.run/go?tag=golang-1.10&repo=https%3A%2Fgithub.com%2Fqwer7y%2FgolexaRank)
 
